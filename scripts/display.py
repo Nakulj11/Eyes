@@ -14,43 +14,42 @@ import scipy
 import rospy
 
 
+#class for creating ros webcam display publisher
 class Display:
 
     def __init__(self, capNum, cameraName, metadataPath):
-        self.imagePub = rospy.Publisher(cameraName + "/image_raw",Image,queue_size=1)
 
+        #publishes image and calibration data
+        self.imagePub = rospy.Publisher(cameraName + "/image_raw",Image,queue_size=1)
         self.infoPub = rospy.Publisher(cameraName + "/camera_info",CameraInfo,queue_size=1)
 
+        #gets calibration data from given file path
         self.metadataPath = metadataPath
 
+        #converting cv2 fram into ros Image
         self.capture = cv2.VideoCapture(capNum)
-
         self.bridge = CvBridge()
-
         self.cameraName = cameraName
 
         print("Up and Running")
     
     def publish(self):
 
+
         try:
+          #reads frame
           ret, frame = self.capture.read()
 
+          #publishes image and calibration data
           self.imagePub.publish(self.bridge.cv2_to_imgmsg(frame, 'bgr8'))
-
           camera_info_msg = yaml_to_CameraInfo(self.metadataPath)
-
           self.infoPub.publish(camera_info_msg)
 
 
-          # print(frameL)
-
-          # img = cv2.hconcat([frameL, frameR])
-        #   cv2.imshow("image", frame)
-        #   cv2.waitKey(1)
         except CvBridgeError as e:
             print(e)
 
+#converts yaml calibration data into CameraInfo message for the ros topic /camera_info
 def yaml_to_CameraInfo(yaml_fname):
     with open(yaml_fname, "r") as file_handle:
         calib_data = yaml.safe_load(file_handle)

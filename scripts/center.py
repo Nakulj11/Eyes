@@ -2,10 +2,12 @@
 
 from robot import Robot
 
+
+#small program to set all servos to center
+#execute as a python file
 def main():
     robot = Robot()
 
-    # robot.setPositions([400, 400, 512, 900])
     robot.setPositions([512, 512, 512, 512])
 
 
